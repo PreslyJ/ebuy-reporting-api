@@ -1,0 +1,4 @@
+[submodule "ebuy-common-lib"]
+	path = ebuy-common-lib
+	url = git@github.com:PreslyJ/ebuy-common-lib.git
+	branch = master

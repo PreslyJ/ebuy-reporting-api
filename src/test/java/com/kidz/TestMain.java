@@ -1,4 +1,4 @@
-package com.kidz.ebuy;
+package com.kidz;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,19 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.kidz.cart.model.Customer;
 import com.kidz.util.ExcelGenerator;
 
 public class TestMain {
 
 	public static void main(String[] args) {
 		
+		Customer c=new Customer();
+		
 		
 		List<Object> o=new ArrayList<>();
 		
-		o.add("asdsad");
-		o.add("asdsad");
-		o.add("asdsad");		o.add("asdsad");		o.add("asdsad");		o.add("asdsad");		o.add("asdsad");		o.add("asdsad");
-		
+	
 		Map<Integer, List<Object>> map1=new HashMap<>();
 map1.put(1,o);		
 		
