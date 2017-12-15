@@ -1,7 +1,6 @@
 package com.kidz.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,12 +11,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
 import com.kidz.cart.model.Customer;
 import com.kidz.cart.model.Item;
 import com.kidz.cart.model.PurchasedItems;
@@ -25,8 +29,9 @@ import com.kidz.cart.model.StockItems;
 import com.kidz.service.ReportService;
 import com.kidz.util.ExcelGenerator;
 
-
 @RestController
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequestMapping("/report")
 public class ReportController {
 
@@ -81,6 +86,19 @@ public class ReportController {
 	    } 
 		
 	}
+
+	@PreAuthorize("hasRole('ROLE_REPORTUSER')")
+	@RequestMapping(value="/R1",method=RequestMethod.GET)
+	public void getRep1(){}
+
+	@PreAuthorize("hasRole('ROLE_REPORTUSER')")
+	@RequestMapping(value="/R2",method=RequestMethod.GET)
+	public void getRep2(){}
+
+	@PreAuthorize("hasRole('ROLE_REPORTUSER')")
+	@RequestMapping(value="/R3",method=RequestMethod.GET)
+	public void getRep3(){}
+
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value="/getStockReport",method=RequestMethod.GET)

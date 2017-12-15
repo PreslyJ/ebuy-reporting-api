@@ -38,10 +38,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     	
     	httpSecurity.
     		authorizeRequests()
-    		.antMatchers(HttpMethod.GET, "/health").permitAll();
-
+    		.antMatchers(HttpMethod.GET, "/health").permitAll()
+    		.antMatchers(HttpMethod.GET, "/getStockReport").permitAll()
+    		.antMatchers(HttpMethod.GET, "/getSalesSummaryReport").permitAll()
+    		.antMatchers(HttpMethod.GET, "/getProfitReport").permitAll();
+    	
+    	
     	if(securityEnabled==1){
-			httpSecurity.authorizeRequests().anyRequest().authenticated();
+			httpSecurity.authorizeRequests().anyRequest().fullyAuthenticated();
 			httpSecurity.addFilterBefore(new JWTAuthenticationFilter(),UsernamePasswordAuthenticationFilter.class);
 		}else
 			httpSecurity.authorizeRequests().anyRequest().permitAll();
