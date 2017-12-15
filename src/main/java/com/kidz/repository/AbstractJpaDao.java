@@ -7,7 +7,7 @@ import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 
 @Service
-public  class GenericJpaDao {
+public  class AbstractJpaDao {
 	 	 
 	   @PersistenceContext
 	   EntityManager entityManager;
@@ -16,13 +16,29 @@ public  class GenericJpaDao {
 	   public <T> T findOne( Long id,Class< T > clazz ){
 	      return entityManager.find( clazz, id );
 	   }
-	 
+	
+	   @SuppressWarnings("unchecked")
+	   public <T> T findOne(Class< T > clazz,String whereClause ){
+		      return (T) entityManager.createQuery( "SELECT e from " + clazz.getName()+" e where "+whereClause  )
+		   	       .getSingleResult();
+	   }
+	   
 	   @SuppressWarnings("unchecked")
 	   public <T> List< T > findAll(Class< T > clazz){
 	      return entityManager.createQuery( "from " + clazz.getName() )
 	       .getResultList();
 	   }
-	 
+
+	   
+	   public <T> int findCount(Class< T > clazz,String whereClause){
+	      return (Integer)entityManager.createQuery( "SELECT count(e) from " + clazz.getName()+" e where "+whereClause )
+	       .getSingleResult();
+	   }
+	   
+	   public  Integer findCount(String whereClause){
+		   return (Integer)entityManager.createQuery(whereClause ).getSingleResult();
+	   }
+	   
 	   public <T> void save( T entity ){
 	      entityManager.persist( entity );
 	   }
@@ -40,9 +56,10 @@ public  class GenericJpaDao {
 	      delete( entity );
 	   }
 	   
+	   @SuppressWarnings("unchecked")
 	   public <T> List< T > findAll(Class< T > clazz, String whereClause){
-		      return entityManager.createQuery( "from " + clazz.getName() + " "+whereClause )
-		       .getResultList();
+	      return entityManager.createQuery( "from " + clazz.getName() + " e where "+whereClause )
+	       .getResultList();
 	   }
 	 
 }

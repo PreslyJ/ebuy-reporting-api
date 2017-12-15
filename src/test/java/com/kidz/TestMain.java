@@ -26,7 +26,7 @@ map1.put(1,o);
 		String[] headarray1={"as"};
  
 		try {
-			ExcelGenerator.printReport(map1, headarray1, "test","2017/20/20", "tst");
+			//ExcelGenerator.printReport(map1, headarray1, "test","2017/20/20", "tst");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
