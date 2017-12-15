@@ -1,5 +1,6 @@
 package com.kidz.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -31,12 +32,17 @@ public  class AbstractJpaDao {
 
 	   
 	   public <T> int findCount(Class< T > clazz,String whereClause){
-	      return (Integer)entityManager.createQuery( "SELECT count(e) from " + clazz.getName()+" e where "+whereClause )
-	       .getSingleResult();
+	      return ((Long)entityManager.createQuery( "SELECT count(e) from " + clazz.getName()+" e where "+whereClause )
+	       .getSingleResult()).intValue();
 	   }
 	   
-	   public  Integer findCount(String whereClause){
-		   return (Integer)entityManager.createQuery(whereClause ).getSingleResult();
+	   public  Integer findCount(String whereClause,Date fromDate,Date toDate){
+		   if(toDate==null)
+			   return ((Long)entityManager.createQuery(whereClause ).
+				   setParameter(1, fromDate).getSingleResult()).intValue();
+		   else
+			   return ((Long)entityManager.createQuery(whereClause ).
+					   setParameter(1, fromDate).setParameter(2,toDate).getSingleResult()).intValue();
 	   }
 	   
 	   public <T> void save( T entity ){
@@ -57,9 +63,13 @@ public  class AbstractJpaDao {
 	   }
 	   
 	   @SuppressWarnings("unchecked")
-	   public <T> List< T > findAll(Class< T > clazz, String whereClause){
-	      return entityManager.createQuery( "from " + clazz.getName() + " e where "+whereClause )
-	       .getResultList();
+	   public <T> List< T > findAll(Class< T > clazz, String whereClause,Date fromDate,Date toDate){
+	      if(fromDate!=null && toDate!=null)
+	    	  return entityManager.createQuery( "from " + clazz.getName() + " e where "+whereClause ).setParameter(1, fromDate).setParameter(2,toDate)
+	    			  .getResultList();
+	      else
+	    	  return entityManager.createQuery( "from " + clazz.getName() + " e where "+whereClause )
+	    		       .getResultList();
 	   }
 	 
 }

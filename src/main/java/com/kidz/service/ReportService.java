@@ -14,7 +14,7 @@ public interface ReportService {
 
 	public List<Item> findAllItems();
 	
-	public int getClosingStock(Date fromDate,Date toDate,long itemId);
+	public int getClosingStock(Date fromDate,Date toDate,Long itemId);
 	
 	public int getPurchasedStock(Date fromDate,Date toDate,long itemId);
 	

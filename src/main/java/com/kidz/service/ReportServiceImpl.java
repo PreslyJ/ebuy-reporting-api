@@ -27,12 +27,12 @@ public class ReportServiceImpl implements ReportService{
 
 	@Override
 	public List<Item> findAllItems() {
-		return abstractJpaDao.findAll(Item.class, " status='active'");
+		return abstractJpaDao.findAll(Item.class, " status='active'",null,null);
 	}
 
-	public int getClosingStock(Date fromDate,Date toDate,long itemId) {
+	public int getClosingStock(Date fromDate,Date toDate,Long itemId) {
 
-		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate<"+fromDate);
+		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate<?"+1,fromDate,null);
 		 Integer purchases=getPurchasedStock(fromDate, itemId);
 	
 		 if (stock==null)
@@ -46,7 +46,7 @@ public class ReportServiceImpl implements ReportService{
 	
 	public int getPurchasedStock(Date fromDate,Date toDate,long itemId) {
 		
-		Integer purchases= abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+itemId+" and e.purchasedDate>="+fromDate+" and e.purchasedDate<="+toDate);
+		Integer purchases= abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+(int)itemId+" and e.purchasedDate>=?"+1+" and e.purchasedDate<=?"+2,fromDate,toDate);
 
 		if(purchases==null)
 			 purchases=0;
@@ -57,7 +57,7 @@ public class ReportServiceImpl implements ReportService{
 
 	public int getStockIn(Date fromDate,Date toDate,long itemId) {
 
-		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate>="+fromDate +" and e.inventryDate<="+toDate);
+		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate>=?"+1 +" and e.inventryDate<=?"+2,fromDate,toDate);
 	
 		 if (stock==null)
 			 stock=0;
@@ -68,19 +68,19 @@ public class ReportServiceImpl implements ReportService{
 	
 	
 	public Integer getPurchasedStock(Date toDate,long itemId) {
-		return abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+itemId+" and e.inventryDate<"+toDate);
+		return abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+itemId+" and e.purchasedDate<?"+1,toDate,null);
 	}
 	
 
 	public List<PurchasedItems> getPurchasedStock(Date fromDate,Date toDate) {
 		
-		return abstractJpaDao.findAll(PurchasedItems.class,"e.purchasedDate>="+fromDate+" and e.purchasedDate<="+toDate);
+		return abstractJpaDao.findAll(PurchasedItems.class,"e.purchasedDate>=?"+1+" and e.purchasedDate<=?"+2,fromDate,toDate);
 
 	}
 	
 	public StockItems getLastStockByItemId(long itemId) {
 		
-		StockItems stockItem=abstractJpaDao.findOne(StockItems.class, "where SELECT max(s.id) from StockItems s where  s.item.id="+itemId);
+		StockItems stockItem=abstractJpaDao.findOne(StockItems.class, " e.id=(SELECT max(s.id) from StockItems s where  s.item.id="+itemId+")");
 		 
 	 	return stockItem;
 		 

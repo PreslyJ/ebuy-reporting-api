@@ -12,9 +12,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.kidz.cart.model.Customer;
 import com.kidz.cart.model.Item;
@@ -35,7 +37,7 @@ public class ReportController {
 	ExcelGenerator excelGenerator;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@RequestMapping(value="/getCustomerReport",method=RequestMethod.POST)
+	@RequestMapping(value="/getCustomerReport",method=RequestMethod.GET)
 	public void saveCustomer(HttpServletRequest request,HttpServletResponse response) throws  IOException {
 		
 	    try {
@@ -81,39 +83,19 @@ public class ReportController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@RequestMapping(value="/getStockReport",method=RequestMethod.POST)
-	public void getStockSummary(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> filterMap) throws  IOException {
+	@RequestMapping(value="/getStockReport",method=RequestMethod.GET)
+	public void getStockSummary(HttpServletRequest request,HttpServletResponse response,@RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date  toDate, @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate) throws  IOException {
 		
 	    try {
 	 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			
-			Date fromDate = null;
-			try {
-				fromDate = filterMap.get("fromDate") != null ? sdf.parse((String) filterMap.get("fromDate")) : null;
-			} catch (ParseException e) {
-			}
-			Date toDate = null;
-			try {
-				toDate = filterMap.get("toDate") != null ? sdf.parse((String) filterMap.get("toDate")) : null;
-			} catch (ParseException e) {
-			}
-			
-			
-			if (toDate == null && fromDate != null) {
-				Calendar c = Calendar.getInstance();
-				c.setTime(fromDate);
-				c.add(Calendar.DATE, 1);
-				toDate = c.getTime();
-			}
-			
 					
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition","attachment; filename=customers.xls");
+			response.setHeader("Content-Disposition","attachment; filename=stockReport.xls");
 				 
 			List<Item> itemList=reportService.findAllItems();
 			 
-			String[] headers = {"ID", "First Name","Last Name","Email","Phone No","Address 1","Address 2","Address 3","Registered Date"};
+			String[] headers = {"ID", "Name","Description","Subcategory","category","Opening Stock","Purchase In","Purchase OUT","Closing Stock"};
 			 
 			Map data=new HashMap<>();
 			int i=0;
@@ -144,20 +126,6 @@ public class ReportController {
 				i++;
 				
 			}
-			
-			List row=new ArrayList<>();
-			
-			row.add("");
-			row.add("");				
-			row.add("");				
-			row.add("");				
-			row.add("");				
-			row.add("Total");
-			row.add("Total");
-			row.add("Total");
-			row.add("Total");
-			
-			data.put(i, row);
  			 
 			excelGenerator.printReport(data,headers,"Stock Report",sdf.format(new Date()),response.getOutputStream());
 	     
@@ -170,23 +138,12 @@ public class ReportController {
 	    
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@RequestMapping(value="/getSalesSummaryReport",method=RequestMethod.POST)
-	public void getSalesSummary(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> filterMap) throws  IOException {
+	@RequestMapping(value="/getSalesSummaryReport",method=RequestMethod.GET)
+	public void getSalesSummary(HttpServletRequest request,HttpServletResponse response,@RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date  toDate, @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate) throws  IOException {
 		
 	    try {
 	 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			
-			Date fromDate = null;
-			try {
-				fromDate = filterMap.get("fromDate") != null ? sdf.parse((String) filterMap.get("fromDate")) : null;
-			} catch (ParseException e) {
-			}
-			Date toDate = null;
-			try {
-				toDate = filterMap.get("toDate") != null ? sdf.parse((String) filterMap.get("toDate")) : null;
-			} catch (ParseException e) {
-			}
 			
 			
 			if (toDate == null && fromDate != null) {
@@ -198,11 +155,11 @@ public class ReportController {
 			
 					
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition","attachment; filename=salesSummary.xls");
+			response.setHeader("Content-Disposition","attachment; filename=sales_detail.xls");
 				 
 			List<PurchasedItems> list= reportService.getPurchasedStock(fromDate,toDate); 
 			
-			String[] headers = {"ID", "First Name","Last Name","Email","Phone No","Address 1","Address 2","Address 3","Registered Date"};
+			String[] headers = {"ID", "Username","Purchased item","Units","Unit price","Total"};
 			 
 			Map data=new HashMap<>();
 			int i=0;
@@ -223,16 +180,16 @@ public class ReportController {
 				
 			}
 
-			List row=new ArrayList<>();
+	/*		List row=new ArrayList<>();
 			row.add("");	
 			row.add("");						
 			row.add("Total");				
 			row.add("");				
 			row.add("Total");
 			
-			data.put(i, row);
+			data.put(i, row);*/
 			 
-			excelGenerator.printReport(data,headers,"Sales Summary",sdf.format(new Date()),response.getOutputStream());
+			excelGenerator.printReport(data,headers,"Sales Detail",sdf.format(new Date()),response.getOutputStream());
 	     
 		} catch (Exception e){
 			e.printStackTrace();
@@ -241,37 +198,20 @@ public class ReportController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@RequestMapping(value="/getProfitReport",method=RequestMethod.POST)
-	public void getProfitReport(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String, Object> filterMap) throws  IOException {
+	@RequestMapping(value="/getProfitReport",method=RequestMethod.GET)
+	public void getProfitReport(HttpServletRequest request,HttpServletResponse response,@RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date  toDate, @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDate) throws  IOException {
 		
 	    try {
 
 	    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			
-			Date fromDate = null;
-			try {
-				fromDate = filterMap.get("fromDate") != null ? sdf.parse((String) filterMap.get("fromDate")) : null;
-			} catch (ParseException e) {
-			}
-			Date toDate = null;
-			try {
-				toDate = filterMap.get("toDate") != null ? sdf.parse((String) filterMap.get("toDate")) : null;
-			} catch (ParseException e) {
-			}
 			
-			if (toDate == null && fromDate != null) {
-				Calendar c = Calendar.getInstance();
-				c.setTime(fromDate);
-				c.add(Calendar.DATE, 1);
-				toDate = c.getTime();
-			}
-					
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition","attachment; filename=salesSummary.xls");
+			response.setHeader("Content-Disposition","attachment; filename=Profits.xls");
 				 
 			List<PurchasedItems> list= reportService.getPurchasedStock(fromDate,toDate); 
 			
-			String[] headers = {"ID", "First Name","Last Name","Email","Phone No","Address 1","Address 2","Address 3","Registered Date"};
+			String[] headers = {"ID", "Purchased Item","Selling Price","Unit Cost","Per Unit Profit","QTY Sold","Profit in total"};
 			 
 			Map data=new HashMap<>();
 			int i=0;
@@ -286,11 +226,21 @@ public class ReportController {
 				double selling=item.getPurchasePrice()/item.getNoOfItems();
 				row.add(selling);	
 				
-				StockItems stockItem=reportService.getLastStockByItemId(item.getItem().getId());
-				row.add(stockItem.getBuyingPrice());				
+				StockItems stockItem;
+				double perUnitPro=0;
+				try {
+					stockItem = reportService.getLastStockByItemId(item.getItem().getId());
+					row.add(stockItem.getBuyingPrice());
+					perUnitPro=selling-stockItem.getBuyingPrice();
+					row.add(perUnitPro);
+
+				} catch (Exception e) {
+					row.add(0);
+					perUnitPro=selling;
+					row.add(perUnitPro);
+					e.printStackTrace();
+				}				
 				
-				double perUnitPro=selling-stockItem.getBuyingPrice();
-				row.add(perUnitPro);
 				
 				row.add(item.getNoOfItems());
 				row.add(item.getNoOfItems()*perUnitPro);
@@ -301,7 +251,7 @@ public class ReportController {
 				
 			}
 
-			List row=new ArrayList<>();
+			/*List row=new ArrayList<>();
 			row.add("");	
 			row.add("");
 			row.add("");	
@@ -310,9 +260,9 @@ public class ReportController {
 			row.add("Total");
 			row.add("Total");
 
-			data.put(i, row);
+			data.put(i, row);*/
 			 
-			excelGenerator.printReport(data,headers,"Sales Summary",sdf.format(new Date()),response.getOutputStream());
+			excelGenerator.printReport(data,headers,"Profits",sdf.format(new Date()),response.getOutputStream());
 	     
 		} catch (Exception e){
 			e.printStackTrace();
