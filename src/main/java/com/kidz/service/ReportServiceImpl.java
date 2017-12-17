@@ -32,7 +32,11 @@ public class ReportServiceImpl implements ReportService{
 
 	public int getClosingStock(Date fromDate,Date toDate,Long itemId) {
 
-		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate<?"+1,fromDate,null);
+		 Integer stock=0;
+		try {
+			stock = abstractJpaDao.findCount("SELECT sum(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate<?"+1,fromDate,null);
+		} catch (Exception e) {
+		}
 		 Integer purchases=getPurchasedStock(fromDate, itemId);
 	
 		 if (stock==null)
@@ -46,7 +50,11 @@ public class ReportServiceImpl implements ReportService{
 	
 	public int getPurchasedStock(Date fromDate,Date toDate,long itemId) {
 		
-		Integer purchases= abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+(int)itemId+" and e.purchasedDate>=?"+1+" and e.purchasedDate<=?"+2,fromDate,toDate);
+		Integer purchases=0;
+		try {
+			purchases = abstractJpaDao.findCount("SELECT sum(e.noOfItems) from PurchasedItems e where  e.item.id="+(int)itemId+" and e.purchasedDate>=?"+1+" and e.purchasedDate<=?"+2,fromDate,toDate);
+		} catch (Exception e) {
+		}
 
 		if(purchases==null)
 			 purchases=0;
@@ -57,7 +65,11 @@ public class ReportServiceImpl implements ReportService{
 
 	public int getStockIn(Date fromDate,Date toDate,long itemId) {
 
-		 Integer stock=abstractJpaDao.findCount("SELECT count(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate>=?"+1 +" and e.inventryDate<=?"+2,fromDate,toDate);
+		 Integer stock=0;
+		try {
+			stock = abstractJpaDao.findCount("SELECT sum(e.noOfItems) from StockItems e where  e.item.id="+itemId+" and e.inventryDate>=?"+1 +" and e.inventryDate<=?"+2,fromDate,toDate);
+		} catch (Exception e) {
+		}
 	
 		 if (stock==null)
 			 stock=0;
@@ -68,7 +80,11 @@ public class ReportServiceImpl implements ReportService{
 	
 	
 	public Integer getPurchasedStock(Date toDate,long itemId) {
-		return abstractJpaDao.findCount("SELECT count(e.noOfItems) from PurchasedItems e where  e.item.id="+itemId+" and e.purchasedDate<?"+1,toDate,null);
+		try {
+			return abstractJpaDao.findCount("SELECT sum(e.noOfItems) from PurchasedItems e where  e.item.id="+itemId+" and e.purchasedDate<?"+1,toDate,null);
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 	
 
